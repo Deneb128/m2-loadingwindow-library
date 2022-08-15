@@ -9,6 +9,9 @@
 #include <atomic>
 #include <string>
 #pragma comment(lib, "d3d8.lib")
+//#define TEST_PROGRESS_BAR
+//#define LOADING_WINDOW_NOBORDERS
+#define OPEN_CENTERED
 class LoadingMainWindow
 {
 public:
@@ -19,7 +22,7 @@ public:
     void Run();
     void Close();
     void SetProgress(float progress) { m_Progress = progress; }
-    void SetDone() { m_Done = true;}
+    void SetDone() { m_Done = true; }
     void SetProgressText(std::string text) { m_LoadingText = text; }
     virtual void Update() = 0;
     virtual void StartUp() = 0;

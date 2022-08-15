@@ -1,5 +1,6 @@
 #include "LoadingWindowHandler.h"
 #include <string>
+
 static LPDIRECT3D8              g_pD3D = NULL;
 static LPDIRECT3DDEVICE8        g_pd3dDevice = NULL;
 static D3DPRESENT_PARAMETERS    g_d3dpp = {};
@@ -122,12 +123,26 @@ bool LoadTextureFromFile(LPDIRECT3DTEXTURE8* out_texture, int* out_width, int* o
 
 //TEXTURE LOAD END
 
+void _GetClientRect(HWND hWnd, RECT* prc)
+{
+    ::GetClientRect(hWnd, prc);
+}
+
+int	GetScreenWidth()
+{
+    return GetSystemMetrics(SM_CXSCREEN);
+}
+
+int	GetScreenHeight()
+{
+    return GetSystemMetrics(SM_CYSCREEN);
+}
 
 LoadingMainWindow::LoadingMainWindow()
 {
     m_WCEX = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("ImGui Example"), NULL };
     ::RegisterClassEx(&m_WCEX);
-    m_HWND = ::CreateWindow(m_WCEX.lpszClassName, _T("UniversalElements"), WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, NULL, NULL, m_WCEX.hInstance, NULL);
+    m_HWND = ::CreateWindow(m_WCEX.lpszClassName, _T("Dear ImGui DirectX8 Example"), WS_OVERLAPPED, 100, 100, 1280, 800, NULL, NULL, m_WCEX.hInstance, NULL);
     // Initialize Direct3D
     if (!CreateDeviceD3D(m_HWND))
     {
@@ -136,6 +151,13 @@ LoadingMainWindow::LoadingMainWindow()
         Close();
     }
     // Show the window
+#ifdef OPEN_CENTERED
+    RECT rc;
+    _GetClientRect(m_HWND, &rc);
+    int windowWidth = rc.right - rc.left;
+    int windowHeight = rc.bottom - rc.top;
+    SetWindowPos(m_HWND, HWND_TOPMOST, (GetScreenWidth() - windowWidth) / 2, (GetScreenHeight() - windowHeight) / 2, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+#endif
     ::ShowWindow(m_HWND, SW_SHOWDEFAULT);
     ::UpdateWindow(m_HWND);
 
@@ -195,26 +217,35 @@ void LoadingMainWindow::Run()
         }
         if (m_Done)
             break;
-
+#ifndef TEST_PROGRESS_BAR
         if (m_Progress >= 1.0f)
             m_Done = true;
+#endif
         // Start the Dear ImGui frame
         ImGui_ImplDX8_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
         //APP_BEGIN
-        // progress bar test
-        //m_Progress = m_Progress + 0.1f;
+
         //START WINDOW
         ImGuiWindowFlags window_flags = 0;
+#ifndef TEST_PROGRESS_BAR
         window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
-
+#endif
+#ifdef LOADING_WINDOW_NOBORDERS
+        window_flags |= ImGuiTableFlags_Borders;
+#endif
         ImGui::Begin("TopWindow", nullptr, window_flags);
         //SHOW BACKGROUND
         ImGui::SetCursorPosY(0);
         auto size = ImGui::GetContentRegionAvail();
         ImGui::Image((void*)SplashImage, ImVec2(size.x, size.y));
-
+#ifdef TEST_PROGRESS_BAR
+        static float progress_dir = 1.0f;
+        m_Progress += progress_dir * 0.4f * ImGui::GetIO().DeltaTime;
+        if (m_Progress >= +1.1f) { m_Progress = +1.1f; progress_dir *= -1.0f; }
+        if (m_Progress <= -0.1f) { m_Progress = -0.1f; progress_dir *= -1.0f; }
+#endif
         //UPDATE PROGRESS BAR
         Update();
 

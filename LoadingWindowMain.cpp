@@ -1,19 +1,21 @@
 #include "LoadingWindowMain.h"
 
 
-//testing purposes
-/*int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+#if defined(TEST_PROGRESS_BAR) && !defined(_DEBUG)
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     loading_window_app = new App();
     loading_window_app->Run();
-}*/
+}
+#endif
 
-//testing with console
-/*int main(int, char**)
+#if defined(TEST_PROGRESS_BAR) && defined(_DEBUG)
+int main(int, char**)
 {
     loading_window_app = new App();
     loading_window_app->Run();
-}*/
+}
+#endif
 
 namespace LoadingWindow {
     void InitializeLibrary()
