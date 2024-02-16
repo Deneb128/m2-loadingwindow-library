@@ -1,4 +1,4 @@
-# metin2-loadingwindow-library
+# m2-loadingwindow-library
 
 Simple library made to show the progress of the loading of the Metin2Client while it's trying to load some data to memory.
 
